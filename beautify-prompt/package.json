@@ -1,9 +1,37 @@
 {
   "name": "beautify-prompt",
-  "displayName": "Beautify Prompt for GitHub Copilot",
-  "description": "Enhance and improve your GitHub Copilot prompts for better results",
-  "version": "0.0.1",
+  "displayNa      "properties": {
+        "beautify-prompt.beautificationMethod": {
+          "type": "string",
+          "default": "promptBoost",
+          "enum": ["promptBoost", "simulation", "externalAI"],
+          "enumDescriptions": [
+            "Use VS Code's promptBoost API when available (recommended)",
+            "Use simple rule-based simulation for beautification",
+            "Use external AI service for more intelligent beautification"
+          ],
+          "description": "Method to use for beautifying prompts"
+        },
+        "beautify-prompt.aiService.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for the external AI service"
+        },
+        "beautify-prompt.aiService.endpoint": {
+          "type": "string",
+          "default": "https://api.openai.com/v1/chat/completions",
+          "description": "Endpoint URL for the external AI service"
+        },
+        "beautify-prompt.aiService.model": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "AI model to use for prompt beautification"
+        }
+      },fy Prompt for GitHub Copilot",
+  "description": "Enhance and improve your GitHub Copilot prompts for better results in both editor and chat",
+  "version": "0.0.2",
   "publisher": "C99-FHM-EMU-TrongPV6",
+  "icon": "icons/beautify-prompt-icon.png",
   "author": {
     "name": "C99.FHM.EMU.TrongPV6"
   },
@@ -22,19 +50,97 @@
   "contributes": {
     "commands": [
       {
-        "command": "beautify-prompt.enhancePrompt",
-        "title": "Enhance Copilot Prompt"
+        "command": "beautify-prompt.beautifyPrompt",
+        "title": "Beautify Prompt",
+        "icon": {
+          "light": "icons/beautify-light.svg",
+          "dark": "icons/beautify-dark.svg"
+        }
+      },
+      {
+        "command": "beautify-prompt.beautifyChatPrompt",
+        "title": "Beautify Copilot Chat Prompt",
+        "icon": {
+          "light": "icons/beautify-chat-light.svg",
+          "dark": "icons/beautify-chat-dark.svg"
+        }
       }
     ],
+    "configuration": {
+      "title": "Beautify Prompt",
+      "properties": {
+        "beautify-prompt.beautificationMethod": {
+          "type": "string",
+          "default": "promptBoost",
+          "enum": ["promptBoost", "simulation", "externalAI"],
+          "enumDescriptions": [
+            "Use VS Code's promptBoost API when available (recommended)",
+            "Use simple rule-based simulation for beautification",
+            "Use external AI service for more intelligent beautification"
+          ],
+          "description": "Method to use for beautifying prompts"
+        },
+        "beautify-prompt.aiService.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for the external AI service"
+        },
+        "beautify-prompt.aiService.endpoint": {
+          "type": "string",
+          "default": "https://api.openai.com/v1/chat/completions",
+          "description": "Endpoint URL for the external AI service"
+        },
+        "beautify-prompt.aiService.model": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "AI model to use for prompt beautification"
+        }
+      }
+    },
     "menus": {
       "editor/context": [
         {
-          "command": "beautify-prompt.enhancePrompt",
+          "command": "beautify-prompt.beautifyPrompt",
           "when": "editorHasSelection",
           "group": "navigation"
         }
+      ],
+      "editor/title": [
+        {
+          "command": "beautify-prompt.beautifyPrompt",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "beautify-prompt.beautifyChatPrompt",
+          "title": "Beautify GitHub Copilot Chat Prompt"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "beautify-prompt.beautifyChatPrompt",
+          "when": "webviewId =~ /^github.copilot.*/",
+          "group": "navigation"
+        }
+      ],
+      "webview/title": [
+        {
+          "command": "beautify-prompt.beautifyChatPrompt", 
+          "when": "webviewId =~ /^github.copilot.*/",
+          "group": "navigation"
+        }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "beautify-prompt.beautifyChatPrompt",
+        "key": "ctrl+shift+b",
+        "mac": "cmd+shift+b",
+        "when": "webviewId =~ /^github.copilot.*/ && webviewFocus"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

@@ -14,10 +14,17 @@ This extension helps you improve the quality of your GitHub Copilot prompts by:
 
 ### How to Use
 
+#### In Code Editor:
 1. Select the text of your prompt in the editor
-2. Right-click and select "Enhance Copilot Prompt" from the context menu
+2. Right-click and select "Beautify Prompt" from the context menu
 3. The extension will process your prompt and replace it with an enhanced version
 4. Use the enhanced prompt with GitHub Copilot for better results
+
+#### In GitHub Copilot Chat:
+1. Start typing a prompt in the GitHub Copilot Chat panel
+2. Before sending, press `Cmd+Shift+B` (Mac) or `Ctrl+Shift+B` (Windows/Linux)
+3. Your prompt will be enhanced and copied to the clipboard
+4. Paste the enhanced prompt into the chat input with `Cmd+V` (Mac) or `Ctrl+V` (Windows/Linux)
 
 ![Enhance Prompt Demo](images/enhance-prompt-demo.gif)
 
@@ -54,7 +61,13 @@ This extension doesn't currently expose any configurable settings. Future versio
 
 ## Release Notes
 
-### 0.1.0
+### 0.0.2
+
+- Added support for GitHub Copilot Chat prompts
+- Added keyboard shortcut (Cmd+Shift+B / Ctrl+Shift+B) for enhancing Chat prompts
+- Improved documentation
+
+### 0.0.1
 
 Initial release of Beautify Prompt for GitHub Copilot with basic enhancement capabilities.
 

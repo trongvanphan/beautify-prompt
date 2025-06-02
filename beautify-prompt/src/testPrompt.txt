@@ -1,0 +1,14 @@
+/* Original Prompt */
+write function to sort array
+
+/* Enhanced Prompt */
+Task: Create a function to sort an array of elements
+
+Context: I'm working with JavaScript (or preferred language) and need an efficient sorting implementation.
+
+Expected output: 
+1. A well-documented function that sorts an array of elements
+2. Clear explanation of the sorting algorithm used
+3. Time and space complexity analysis
+4. Handling for edge cases (empty arrays, already sorted arrays, etc.)
+5. Example usage with different inputs
