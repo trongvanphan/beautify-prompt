@@ -1,43 +1,16 @@
 {
   "name": "beautify-prompt",
-  "displayNa      "properties": {
-        "beautify-prompt.beautificationMethod": {
-          "type": "string",
-          "default": "promptBoost",
-          "enum": ["promptBoost", "simulation", "externalAI"],
-          "enumDescriptions": [
-            "Use VS Code's promptBoost API when available (recommended)",
-            "Use simple rule-based simulation for beautification",
-            "Use external AI service for more intelligent beautification"
-          ],
-          "description": "Method to use for beautifying prompts"
-        },
-        "beautify-prompt.aiService.apiKey": {
-          "type": "string",
-          "default": "",
-          "description": "API key for the external AI service"
-        },
-        "beautify-prompt.aiService.endpoint": {
-          "type": "string",
-          "default": "https://api.openai.com/v1/chat/completions",
-          "description": "Endpoint URL for the external AI service"
-        },
-        "beautify-prompt.aiService.model": {
-          "type": "string",
-          "default": "gpt-4",
-          "description": "AI model to use for prompt beautification"
-        }
-      },fy Prompt for GitHub Copilot",
-  "description": "Enhance and improve your GitHub Copilot prompts for better results in both editor and chat",
-  "version": "0.0.2",
-  "publisher": "C99-FHM-EMU-TrongPV6",
+  "displayName": "Beautify Prompt for GitHub Copilot",
+  "description": "Enhance and improve your GitHub Copilot prompts for better software development results",
+  "version": "0.0.4",
+  "publisher": "C99-FHM-EMU",
   "icon": "icons/beautify-prompt-icon.png",
   "author": {
-    "name": "C99.FHM.EMU.TrongPV6"
+    "name": "C99.FHM.EMU"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/trongpv6/beautify-prompt.git"
+    "url": "https://github.com/trongvanphan/beautify-prompt.git"
   },
   "engines": {
     "vscode": "^1.100.0"
@@ -64,36 +37,28 @@
           "light": "icons/beautify-chat-light.svg",
           "dark": "icons/beautify-chat-dark.svg"
         }
+      },
+      {
+        "command": "beautify-prompt.checkAutoBeautify",
+        "title": "Check for Auto-Beautify Prefix",
+        "icon": {
+          "light": "icons/beautify-chat-light.svg",
+          "dark": "icons/beautify-chat-dark.svg"
+        }
       }
     ],
     "configuration": {
       "title": "Beautify Prompt",
       "properties": {
-        "beautify-prompt.beautificationMethod": {
+        "beautify-prompt.autoBeautifyPrefix": {
           "type": "string",
-          "default": "promptBoost",
-          "enum": ["promptBoost", "simulation", "externalAI"],
-          "enumDescriptions": [
-            "Use VS Code's promptBoost API when available (recommended)",
-            "Use simple rule-based simulation for beautification",
-            "Use external AI service for more intelligent beautification"
-          ],
-          "description": "Method to use for beautifying prompts"
+          "default": "beautify prompt:",
+          "description": "Automatically beautify prompts starting with this prefix. The prefix will be removed from the final prompt."
         },
-        "beautify-prompt.aiService.apiKey": {
-          "type": "string",
-          "default": "",
-          "description": "API key for the external AI service"
-        },
-        "beautify-prompt.aiService.endpoint": {
-          "type": "string",
-          "default": "https://api.openai.com/v1/chat/completions",
-          "description": "Endpoint URL for the external AI service"
-        },
-        "beautify-prompt.aiService.model": {
-          "type": "string",
-          "default": "gpt-4",
-          "description": "AI model to use for prompt beautification"
+        "beautify-prompt.enableAutoBeautify": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic beautification for prompts with the specified prefix"
         }
       }
     },
@@ -127,7 +92,7 @@
       ],
       "webview/title": [
         {
-          "command": "beautify-prompt.beautifyChatPrompt", 
+          "command": "beautify-prompt.beautifyChatPrompt",
           "when": "webviewId =~ /^github.copilot.*/",
           "group": "navigation"
         }
@@ -138,6 +103,12 @@
         "command": "beautify-prompt.beautifyChatPrompt",
         "key": "ctrl+shift+b",
         "mac": "cmd+shift+b",
+        "when": "webviewId =~ /^github.copilot.*/ && webviewFocus"
+      },
+      {
+        "command": "beautify-prompt.checkAutoBeautify",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
         "when": "webviewId =~ /^github.copilot.*/ && webviewFocus"
       }
     ]
@@ -155,17 +126,18 @@
     "vsix-package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.100.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/vscode": "^1.100.0",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
-    "eslint": "^9.25.1",
-    "typescript": "^5.8.3",
-    "ts-loader": "^9.5.2",
-    "webpack": "^5.99.7",
-    "webpack-cli": "^6.0.1",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.4.2",
+    "eslint": "^9.25.1",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1"
   }
 }

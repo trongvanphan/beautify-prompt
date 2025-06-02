@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { beautifyWithExternalAI } from './externalAI';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -18,9 +17,15 @@ export function activate(context: vscode.ExtensionContext) {
 	const beautifyChatPrompt = vscode.commands.registerCommand('beautify-prompt.beautifyChatPrompt', async () => {
 		await handleChatPromptBeautification();
 	});
+	
+	// Register the command to check for and auto-beautify prompts with the prefix
+	const autoBeautifyPrompt = vscode.commands.registerCommand('beautify-prompt.checkAutoBeautify', async () => {
+		await checkClipboardForAutoBeautify();
+	});
 
 	context.subscriptions.push(beautifyEditorPrompt);
 	context.subscriptions.push(beautifyChatPrompt);
+	context.subscriptions.push(autoBeautifyPrompt);
 }
 
 // This method is called when your extension is deactivated
@@ -46,6 +51,9 @@ async function handleEditorPromptBeautification(): Promise<void> {
 	
 	const originalPrompt = editor.document.getText(selection);
 	
+	// Check if the prompt has the auto-beautify prefix
+	const { hasPrefix, processedPrompt } = checkAndProcessAutoBeautifyPrefix(originalPrompt);
+	
 	try {
 		// Show a progress notification
 		const enhancedPrompt = await vscode.window.withProgress({
@@ -54,7 +62,7 @@ async function handleEditorPromptBeautification(): Promise<void> {
 			cancellable: false
 		}, async (progress) => {
 			// Call our prompt beautifier function
-			return await beautifyPromptText(originalPrompt);
+			return await beautifyPromptText(processedPrompt);
 		});
 		
 		// Replace the selected text with the beautified prompt
@@ -86,6 +94,9 @@ async function handleChatPromptBeautification(): Promise<void> {
 		return;
 	}
 	
+	// Check if the prompt has the auto-beautify prefix
+	const { hasPrefix, processedPrompt } = checkAndProcessAutoBeautifyPrefix(clipboardText);
+	
 	try {
 		// Show a progress notification
 		const enhancedPrompt = await vscode.window.withProgress({
@@ -94,7 +105,7 @@ async function handleChatPromptBeautification(): Promise<void> {
 			cancellable: false
 		}, async (progress) => {
 			// Call our prompt beautifier function
-			return await beautifyPromptText(clipboardText);
+			return await beautifyPromptText(processedPrompt);
 		});
 		
 		// Write the beautified prompt back to clipboard
@@ -116,65 +127,36 @@ async function beautifyPromptText(originalPrompt: string): Promise<string> {
 	// Creating a beautified version of the prompt
 	const promptParts = [
 		// Start with a clear definition of what we're beautifying
-		"I need to improve this prompt for GitHub Copilot to generate better code:",
+		"I need to improve this prompt for GitHub Copilot to generate better code in a software development context:",
 		`Original prompt: "${originalPrompt}"`,
 		
-		// Add beautifier instructions
-		"Please beautify this prompt by:",
-		"1. Making it more specific and clearer",
-		"2. Adding necessary context and constraints",
-		"3. Indicating expected output format",
-		"4. Breaking it into logical steps if needed",
-		"5. Removing ambiguity",
+		// Add beautifier instructions specific to software development
+		"Please beautify this prompt for optimal code generation by:",
+		"1. Making it more specific and clearer with precise programming terminology",
+		"2. Adding necessary technical context (language, framework, libraries, versions)",
+		"3. Indicating expected output format (function signature, class structure, code style)",
+		"4. Breaking it into logical development steps or components",
+		"5. Specifying error handling, edge cases, and performance considerations",
+		"6. Including any necessary imports, dependencies, or setup requirements",
+		"7. Mentioning testing expectations if applicable",
+		"8. Providing clarity on design patterns or architectural approaches",
+		"9. Defining variable naming conventions or code style preferences",
 		
 		// Request format
-		"Return only the beautified prompt text without explanations or additional text."
+		"Return only the beautified prompt text without explanations or additional text. Focus exclusively on software development context."
 	];
 	
 	// Construct prompt for language model
 	const beautifiedPromptRequest = promptParts.join("\n\n");
 	
 	try {
-		// Get the beautification method from settings (default to 'promptBoost')
-		const config = vscode.workspace.getConfiguration('beautify-prompt');
-		const method = config.get<string>('beautificationMethod', 'promptBoost');
+		// Here we would ideally call the GitHub Copilot API directly
+		// Since there's no direct API for prompt beautification, we're implementing a local beautifier
 		
-		let beautifiedPrompt = '';
+		// For now, we'll implement a simple beautification logic
+		// In a production extension, you might want to use a proper AI service API
 		
-		// Try different beautification methods based on settings
-		if (method === 'promptBoost') {
-			// Try using VS Code's promptBoost function if available
-			try {
-				// This function may be available in future VS Code versions
-				const vscodeAny = vscode as any;
-				if (vscodeAny.env && vscodeAny.env.promptBoost) {
-					console.log('Using VS Code promptBoost API');
-					beautifiedPrompt = await vscodeAny.env.promptBoost(originalPrompt);
-					if (beautifiedPrompt && beautifiedPrompt.trim() !== '') {
-						return beautifiedPrompt;
-					}
-				}
-			} catch (promptBoostError) {
-				console.log('promptBoost not available, using fallback:', promptBoostError);
-			}
-		} else if (method === 'externalAI') {
-			// Use external AI service
-			try {
-				console.log('Using external AI service');
-				// Pass both the original prompt and the beautification request
-				beautifiedPrompt = await beautifyWithExternalAI(originalPrompt, beautifiedPromptRequest);
-				if (beautifiedPrompt && beautifiedPrompt.trim() !== '') {
-					return beautifiedPrompt;
-				}
-			} catch (aiError) {
-				console.log('External AI service failed, using fallback:', aiError);
-				vscode.window.showWarningMessage(`External AI service error: ${aiError instanceof Error ? aiError.message : String(aiError)}`);
-			}
-		}
-		
-		// Use local simulation as fallback
-		console.log('Using simulated prompt beautification');
-		beautifiedPrompt = await simulateCopilotBeautification(originalPrompt);
+		const beautifiedPrompt = await simulateCopilotBeautification(beautifiedPromptRequest);
 		return beautifiedPrompt;
 	} catch (error) {
 		console.error('Error beautifying prompt:', error);
@@ -187,35 +169,118 @@ async function beautifyPromptText(originalPrompt: string): Promise<string> {
  * In a real extension, this could be replaced with a call to an actual API
  */
 async function simulateCopilotBeautification(originalPrompt: string): Promise<string> {
-	// Simple enhancements for demonstration
+	// Software development-specific enhancements
 	const improvedPrompt = originalPrompt.trim();
 	
-	// Add structure if not present
+	// Add task structure if not present
 	let enhancedPrompt = improvedPrompt;
 	
 	if (!improvedPrompt.includes('Task:') && !improvedPrompt.includes('Goal:')) {
 		enhancedPrompt = `Task: ${improvedPrompt}`;
 	}
 	
-	// Add context section if missing
-	if (!improvedPrompt.includes('Context:')) {
-		enhancedPrompt += '\n\nContext: I\'m working with the latest version of the language/framework.';
+	// Add technical context section if missing
+	if (!improvedPrompt.includes('Context:') && !improvedPrompt.includes('Technology:')) {
+		enhancedPrompt += '\n\nContext: Using the latest version of JavaScript/TypeScript with modern ES features.';
 	}
 	
-	// Add expected output if missing
+	// Add language/framework specific details if not mentioned
+	if (!improvedPrompt.toLowerCase().includes('javascript') && 
+		!improvedPrompt.toLowerCase().includes('typescript') && 
+		!improvedPrompt.toLowerCase().includes('python') && 
+		!improvedPrompt.toLowerCase().includes('java') && 
+		!improvedPrompt.toLowerCase().includes('c#')) {
+		enhancedPrompt += '\n\nLanguage: Implement this in TypeScript with strict type checking.';
+	}
+	
+	// Add expected output format if missing
 	if (!improvedPrompt.includes('Expected output:') && 
 		!improvedPrompt.includes('Return:') &&
 		!improvedPrompt.includes('Output:')) {
-		enhancedPrompt += '\n\nExpected output: Well-structured, documented code that follows best practices.';
+		enhancedPrompt += '\n\nExpected output: Well-structured, documented code with proper types and error handling.';
+	}
+	
+	// Add requirements section if not present
+	if (!improvedPrompt.includes('Requirements:')) {
+		enhancedPrompt += '\n\nRequirements:';
+		enhancedPrompt += '\n1. Code should be maintainable and follow SOLID principles';
+		enhancedPrompt += '\n2. Include proper error handling for edge cases';
+		enhancedPrompt += '\n3. Optimize for performance where applicable';
+		enhancedPrompt += '\n4. Add comprehensive documentation';
+	}
+	
+	// Add testing expectations if not mentioned
+	if (!improvedPrompt.includes('Testing:') && !improvedPrompt.includes('tests')) {
+		enhancedPrompt += '\n\nTesting: Include examples of how to test the code.';
 	}
 	
 	// Add specificity if the prompt is very short
 	if (improvedPrompt.split(' ').length < 5) {
-		enhancedPrompt += '\n\nPlease provide a comprehensive solution with appropriate error handling and comments.';
+		enhancedPrompt += '\n\nPlease provide a comprehensive solution with proper architecture, error handling, and documentation comments.';
 	}
 	
 	// Simulate API call delay
 	await new Promise(resolve => setTimeout(resolve, 1000));
 	
 	return enhancedPrompt;
+}
+
+/**
+ * Checks if a prompt starts with the auto-beautify prefix and processes it accordingly
+ * @param promptText The original prompt text
+ * @returns Object containing whether the prefix was found and the processed prompt
+ */
+function checkAndProcessAutoBeautifyPrefix(promptText: string): { hasPrefix: boolean; processedPrompt: string } {
+	// Get the configuration
+	const config = vscode.workspace.getConfiguration('beautify-prompt');
+	const enableAutoBeautify = config.get<boolean>('enableAutoBeautify', true);
+	const autoBeautifyPrefix = config.get<string>('autoBeautifyPrefix', 'beautify prompt:').toLowerCase();
+	
+	// If auto-beautify is disabled, return the original prompt
+	if (!enableAutoBeautify) {
+		return { hasPrefix: false, processedPrompt: promptText };
+	}
+	
+	// Check if the prompt starts with the prefix (case insensitive)
+	const lowerCasePrompt = promptText.toLowerCase();
+	if (lowerCasePrompt.startsWith(autoBeautifyPrefix)) {
+		// Remove the prefix from the prompt (use the original case)
+		const processedPrompt = promptText.substring(autoBeautifyPrefix.length).trim();
+		return { hasPrefix: true, processedPrompt };
+	}
+	
+	// Return the original prompt if no prefix is found
+	return { hasPrefix: false, processedPrompt: promptText };
+}
+
+/**
+ * Checks the clipboard content for the auto-beautify prefix and beautifies it if found
+ * This can be used to auto-beautify prompts as they're being typed
+ */
+async function checkClipboardForAutoBeautify(): Promise<void> {
+	// Get the clipboard content
+	const clipboardText = await vscode.env.clipboard.readText();
+	
+	if (!clipboardText || clipboardText.trim() === '') {
+		return;
+	}
+	
+	// Check if the prompt has the auto-beautify prefix
+	const { hasPrefix, processedPrompt } = checkAndProcessAutoBeautifyPrefix(clipboardText);
+	
+	// Only proceed if the prefix is found
+	if (hasPrefix) {
+		try {
+			// Beautify the prompt
+			const enhancedPrompt = await beautifyPromptText(processedPrompt);
+			
+			// Write the beautified prompt back to clipboard
+			await vscode.env.clipboard.writeText(enhancedPrompt);
+			
+			// Show a subtle notification
+			vscode.window.showInformationMessage('Auto-beautified prompt!', { modal: false });
+		} catch (error) {
+			console.error('Error during auto-beautification:', error);
+		}
+	}
 }
