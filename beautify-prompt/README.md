@@ -40,6 +40,17 @@ For example:
 beautify prompt: create a function that calculates fibonacci
 ```
 
+#### Using the @bp Agent:
+1. Start your prompt with `@bp` (similar to GitHub Copilot's built-in agents like @workspace)
+2. When you type `@bp` in the Copilot Chat, a status bar indicator will appear
+3. Click the status bar icon or press `Cmd+Alt+B` (Mac) or `Ctrl+Alt+B` (Windows/Linux) to trigger the agent
+4. The @bp agent will beautify your prompt with visual progress indicators
+
+For example:
+```
+@bp create a function that calculates fibonacci
+```
+
 Will be automatically beautified to something more detailed and effective like:
 ```
 Task: Create an efficient function that calculates the nth Fibonacci number

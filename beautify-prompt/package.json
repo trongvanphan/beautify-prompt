@@ -2,7 +2,7 @@
   "name": "beautify-prompt",
   "displayName": "Beautify Prompt for GitHub Copilot",
   "description": "Enhance and improve your GitHub Copilot prompts for better software development results",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "publisher": "C99-FHM-EMU",
   "icon": "icons/beautify-prompt-icon.png",
   "author": {
@@ -45,6 +45,14 @@
           "light": "icons/beautify-chat-light.svg",
           "dark": "icons/beautify-chat-dark.svg"
         }
+      },
+      {
+        "command": "beautify-prompt.bpAgentBeautify",
+        "title": "Run @bp Agent Beautifier",
+        "icon": {
+          "light": "icons/beautify-chat-light.svg",
+          "dark": "icons/beautify-chat-dark.svg"
+        }
       }
     ],
     "configuration": {
@@ -53,7 +61,7 @@
         "beautify-prompt.autoBeautifyPrefix": {
           "type": "string",
           "default": "beautify prompt:",
-          "description": "Automatically beautify prompts starting with this prefix. The prefix will be removed from the final prompt."
+          "description": "Automatically beautify prompts starting with this prefix. The prefix will be removed from the final prompt. You can also use '@bp' as a shorthand."
         },
         "beautify-prompt.enableAutoBeautify": {
           "type": "boolean",
@@ -109,6 +117,12 @@
         "command": "beautify-prompt.checkAutoBeautify",
         "key": "ctrl+shift+a",
         "mac": "cmd+shift+a",
+        "when": "webviewId =~ /^github.copilot.*/ && webviewFocus"
+      },
+      {
+        "command": "beautify-prompt.bpAgentBeautify",
+        "key": "ctrl+alt+b",
+        "mac": "cmd+alt+b",
         "when": "webviewId =~ /^github.copilot.*/ && webviewFocus"
       }
     ]

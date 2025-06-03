@@ -8,6 +8,13 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	console.log('Extension "beautify-prompt" is now active');
 
+	// Create status bar item for the @bp agent
+	const bpAgentStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+	bpAgentStatusBarItem.text = "$(sparkle) @bp";
+	bpAgentStatusBarItem.tooltip = "Beautify Prompt Agent (@bp) - Click to beautify prompt";
+	bpAgentStatusBarItem.command = 'beautify-prompt.bpAgentBeautify';
+	context.subscriptions.push(bpAgentStatusBarItem);
+
 	// Register the beautifyPrompt command for editor text
 	const beautifyEditorPrompt = vscode.commands.registerCommand('beautify-prompt.beautifyPrompt', async () => {
 		await handleEditorPromptBeautification();
@@ -23,9 +30,23 @@ export function activate(context: vscode.ExtensionContext) {
 		await checkClipboardForAutoBeautify();
 	});
 
+	// Register a specific command for @bp agent beautification
+	const bpAgentBeautify = vscode.commands.registerCommand('beautify-prompt.bpAgentBeautify', async () => {
+		await handleBpAgentBeautification();
+	});
+
+	// Set up a timer to periodically check clipboard for @bp agent commands
+	const clipboardCheckInterval = setInterval(async () => {
+		await checkClipboardForBpAgent(bpAgentStatusBarItem);
+	}, 1000); // Check every second
+
+	// Make sure to clear interval when extension is deactivated
+	context.subscriptions.push({ dispose: () => clearInterval(clipboardCheckInterval) });
+	
 	context.subscriptions.push(beautifyEditorPrompt);
 	context.subscriptions.push(beautifyChatPrompt);
 	context.subscriptions.push(autoBeautifyPrompt);
+	context.subscriptions.push(bpAgentBeautify);
 }
 
 // This method is called when your extension is deactivated
@@ -243,9 +264,19 @@ function checkAndProcessAutoBeautifyPrefix(promptText: string): { hasPrefix: boo
 	
 	// Check if the prompt starts with the prefix (case insensitive)
 	const lowerCasePrompt = promptText.toLowerCase();
+	
+	// Check for the standard prefix
 	if (lowerCasePrompt.startsWith(autoBeautifyPrefix)) {
 		// Remove the prefix from the prompt (use the original case)
 		const processedPrompt = promptText.substring(autoBeautifyPrefix.length).trim();
+		return { hasPrefix: true, processedPrompt };
+	}
+	
+	// Check for the @bp agent prefix
+	const bpAgentPrefix = '@bp';
+	if (lowerCasePrompt.startsWith(bpAgentPrefix)) {
+		// Remove the @bp prefix from the prompt
+		const processedPrompt = promptText.substring(bpAgentPrefix.length).trim();
 		return { hasPrefix: true, processedPrompt };
 	}
 	
@@ -282,5 +313,86 @@ async function checkClipboardForAutoBeautify(): Promise<void> {
 		} catch (error) {
 			console.error('Error during auto-beautification:', error);
 		}
+	}
+}
+
+/**
+ * Checks the clipboard content specifically for the @bp agent command
+ * Shows/hides the status bar item accordingly
+ */
+async function checkClipboardForBpAgent(statusBarItem: vscode.StatusBarItem): Promise<void> {
+	// Get the clipboard content
+	const clipboardText = await vscode.env.clipboard.readText();
+	
+	if (!clipboardText || clipboardText.trim() === '') {
+		statusBarItem.hide();
+		return;
+	}
+	
+	// Specifically check for the @bp agent prefix at the beginning of the input
+	const lowerCasePrompt = clipboardText.toLowerCase().trim();
+	const bpAgentPrefix = '@bp';
+	
+	if (lowerCasePrompt.startsWith(bpAgentPrefix)) {
+		// Show the status bar item when @bp is detected
+		statusBarItem.show();
+	} else {
+		// Hide it otherwise
+		statusBarItem.hide();
+	}
+}
+
+/**
+ * Handles the beautification triggered by the @bp agent command
+ * Provides a more agent-like experience with specific feedback
+ */
+async function handleBpAgentBeautification(): Promise<void> {
+	// Get the clipboard content
+	const clipboardText = await vscode.env.clipboard.readText();
+	
+	if (!clipboardText || clipboardText.trim() === '') {
+		vscode.window.showInformationMessage('@bp agent: No text found to beautify');
+		return;
+	}
+	
+	// Check specifically for the @bp prefix
+	const lowerCasePrompt = clipboardText.toLowerCase().trim();
+	const bpAgentPrefix = '@bp';
+	
+	if (lowerCasePrompt.startsWith(bpAgentPrefix)) {
+		try {
+			// Remove the @bp prefix
+			const processedPrompt = clipboardText.substring(bpAgentPrefix.length).trim();
+			
+			// Show a progress notification with @bp agent branding
+			const enhancedPrompt = await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: "@bp agent: Beautifying prompt...",
+				cancellable: false
+			}, async (progress) => {
+				progress.report({ increment: 20, message: "Analyzing prompt structure..." });
+				await new Promise(resolve => setTimeout(resolve, 300));
+				
+				progress.report({ increment: 30, message: "Enhancing technical details..." });
+				await new Promise(resolve => setTimeout(resolve, 300));
+				
+				progress.report({ increment: 30, message: "Finalizing improvements..." });
+				await new Promise(resolve => setTimeout(resolve, 300));
+				
+				// Call our prompt beautifier function
+				return await beautifyPromptText(processedPrompt);
+			});
+			
+			// Write the beautified prompt back to clipboard
+			await vscode.env.clipboard.writeText(enhancedPrompt);
+			
+			// Show agent-like response
+			vscode.window.showInformationMessage('@bp agent: Prompt beautified! Press Ctrl+V/Cmd+V to paste.', 
+				{ modal: false, detail: "The beautified prompt is now in your clipboard" });
+		} catch (error) {
+			vscode.window.showErrorMessage(`@bp agent error: ${error instanceof Error ? error.message : String(error)}`);
+		}
+	} else {
+		vscode.window.showInformationMessage('@bp agent: Start your prompt with @bp to beautify');
 	}
 }

@@ -4,6 +4,21 @@ All notable changes to the "beautify-prompt" extension will be documented in thi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.6] - 2025-06-03
+
+### Added
+- Enhanced "@bp" to behave more like a Copilot agent with a dedicated status bar indicator
+- Added status bar icon that appears when "@bp" is detected in your input
+- Added new keyboard shortcut (Cmd+Alt+B / Ctrl+Alt+B) specifically for @bp agent
+- Improved visual feedback with progress indicators during beautification
+- Agent-like experience with step-by-step progress reporting
+
+## [0.0.5] - 2025-06-03
+
+### Added
+- Added support for "@bp" as a special agent prefix to trigger prompt beautification
+- Example: "@bp create a login form with validation" will beautify the prompt
+
 ## [0.0.4] - 2025-06-02
 
 ### Changed
