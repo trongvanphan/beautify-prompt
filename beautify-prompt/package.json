@@ -2,7 +2,7 @@
   "name": "beautify-prompt",
   "displayName": "Beautify Prompt for GitHub Copilot",
   "description": "Enhance and improve your GitHub Copilot prompts for better software development results",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "C99-FHM-EMU",
   "icon": "icons/beautify-prompt-icon.png",
   "author": {
@@ -52,6 +52,14 @@
         "icon": {
           "light": "icons/beautify-chat-light.svg",
           "dark": "icons/beautify-chat-dark.svg"
+        }
+      },
+      {
+        "command": "beautify-prompt.generateTemplateFile",
+        "title": "Beautify Prompt: Generate Custom Template File",
+        "icon": {
+          "light": "icons/beautify-light.svg",
+          "dark": "icons/beautify-dark.svg"
         }
       }
     ],

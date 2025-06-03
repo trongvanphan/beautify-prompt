@@ -106,6 +106,40 @@ You can customize these settings in your VS Code settings.json:
 }
 ```
 
+## Custom Prompt Templates
+
+You can customize the beautification process by creating your own prompt template:
+
+1. Run the command `Beautify Prompt: Generate Custom Template File` from the Command Palette
+2. This creates a file named `bp_actionA.md` in the `.github` folder of your workspace
+3. Edit this template to fit your specific needs and preferences
+4. Use the placeholder `{{PROMPT}}` where you want the original prompt text to be inserted
+5. The extension will automatically use your custom template if available
+
+Alternatively, you can manually create the file:
+
+1. Create a `.github` folder at the root of your workspace (if it doesn't exist)
+2. Create a file named `bp_actionA.md` in this folder
+3. In this file, write your custom prompt template
+4. Use the placeholder `{{PROMPT}}` where you want the original prompt text to be inserted
+
+Example template content:
+
+```markdown
+I want you to transform this prompt into a perfectly structured prompt for coding:
+
+Original Request: "{{PROMPT}}"
+
+Please enhance this request by:
+1. Adding specific programming language and framework details
+2. Breaking down the task into logical steps
+3. Including performance considerations and edge cases
+
+The output should be a comprehensive prompt that will yield high-quality code.
+```
+
+When the extension finds this template, it will use it instead of the built-in one, giving you complete control over the beautification process.
+
 ## Known Issues
 
 - Currently uses simulated enhancement logic; future versions will integrate more advanced AI-based enhancements
@@ -114,7 +148,6 @@ You can customize these settings in your VS Code settings.json:
 ## Future Improvements
 
 - Integration with GitHub Copilot API when available
-- Custom prompt templates for different coding scenarios
 - Additional user-configurable enhancement strategies
 - Support for prompt history and favorites
 - Improved real-time prefix detection for automatic beautification

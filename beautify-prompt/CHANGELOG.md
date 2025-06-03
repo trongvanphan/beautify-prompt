@@ -4,6 +4,14 @@ All notable changes to the "beautify-prompt" extension will be documented in thi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.7] - 2025-06-03
+
+### Added
+- Added support for custom prompt templates through `.github/bp_actionA.md` file
+- Users can now completely customize the beautification prompt
+- Enhanced logging system for better debugging
+- Added option to use placeholders in custom templates with `{{PROMPT}}`
+
 ## [0.0.6] - 2025-06-03
 
 ### Added
